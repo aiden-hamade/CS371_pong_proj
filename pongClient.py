@@ -1,6 +1,6 @@
 # =================================================================================================
-# Contributing Authors:	    <Anyone who touched the code>
-# Email Addresses:          <Your uky.edu email addresses>
+# Contributing Authors:	    <Aiden Hamade, Brock Kessinger>
+# Email Addresses:          <atha241@uky.edu, beke226@uky.edu>
 # Date:                     <The date the file was last edited>
 # Purpose:                  <How this file contributes to the project>
 # Misc:                     <Not Required.  Anything else you might want to include>
@@ -227,4 +227,4 @@ if __name__ == "__main__":
     # Uncomment the line below if you want to play the game without a server to see how it should work
     # the startScreen() function should call playGame with the arguments given to it by the server this is
     # here for demo purposes only
-    #playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+    playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))
