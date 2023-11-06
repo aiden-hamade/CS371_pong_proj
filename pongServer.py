@@ -11,19 +11,18 @@ import threading
 import json
 
 #create global objects containing player1 info
-player1 = {'paddle':[str, int],
+player1 = {'paddle':[int, int, str, int],
            'ball': [int, int, int, int],
            'score': [int, int],
            'sync': int
-
 }
 #create global objects containing player2 info
-player2 = {'paddle':[str, int],
+player2 = {'paddle':[int, int, str, int],
            'ball': [int, int, int, int],
            'score': [int, int],
            'sync': int
-
 }
+
 def createServer() -> None:
     # Use this file to write your server logic
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Creating the server
@@ -45,12 +44,10 @@ def createServer() -> None:
     connections.append(clientSocket1)
     connections.append(clientSocket2)
 
-    if(clientSocket1):
-        playerOne = True
-    else:
-        playerOne = False
+    playerOne = True
 
     thread1 = threading.Thread(target=serveClient, args=(clientSocket1, playerOne))
+    playerOne = False
     thread2 = threading.Thread(target=serveClient, args=(clientSocket2, playerOne))
     
     thread1.start()
@@ -78,10 +75,20 @@ def serveClient(clientSocket: int, playerOne: bool):
                 'screenWidth': SCREEN_WIDTH,
                 'screenHeight': SCREEN_HEIGHT}
     
-    clientSocket.send(json.dumps(initData).decode())
+    j_initData = json.dumps(initData)
+
+    clientSocket.send(j_initData.encode())
 
     #listen to clients and send data back and forth
     while(True):
+
+        #gather full game info to send
+        gameInfo = {'p1_paddle': player1['paddle'],
+                    'p2_paddle': player2['paddle'], 
+                    'ball': [int, int, int, int], #unified ball pos/vel
+                    'score': [int, int], #p1 score, p2 score
+                    'sync': [int] #unified sync
+        }
 
         #Receive update from player
         recv = clientSocket.recv(1024)
@@ -91,28 +98,23 @@ def serveClient(clientSocket: int, playerOne: bool):
             break
 
         if (playerOne): #dataReceived = most updated player1 info
-            if (dataReceived['sync'] < player2['sync']): #if p1 is behind
-                for i in player2['ball']:
-                    player2['ball'][i] = dataReceived['ball'][i] #update p2 ball to slower p1 ball
-                    player2['score'][0] = dataReceived['score'][0] #update p2 scores to slower p1 scores
-                    player2['score'][1] = dataReceived['score'][1]
-                    player2['sync'] = dataReceived['sync'] #set player2 sync to slower p1
-                    player1 = dataReceived #update player1 info
-
+            if (dataReceived['sync'] > player2['sync']): #if p1 is ahead
+                gameInfo['p1_paddle'] = dataReceived['paddle']
+                gameInfo['p2_paddle'] = player2['paddle']
+                gameInfo['ball'] = dataReceived['ball']
+                gameInfo['score'] = dataReceived['score']
+                gameInfo['sync'] = dataReceived['sync']
+                player1 = dataReceived
         else: #dataReceived = most updated player2 info
-            if(dataReceived['sync'] < player1['sync']): #if p2 is behind
-                for i in player1['ball']:
-                    player1['ball'][i] = dataReceived['ball'][i] #update p1 ball to slower p2 ball
-                    player1['score'][0] = dataReceived['score'][0] #update p1 scores to slower p2 scores
-                    player1['score'][1] = dataReceived['score'][1]
-                    player1['sync'] = dataReceived['sync'] #set player1 sync to slower p2
-                    player2 = dataReceived #update player2 info
+            if(dataReceived['sync'] > player1['sync']): #if p2 is ahead
+                gameInfo['p1_paddle'] = player1['paddle']
+                gameInfo['p2_paddle'] = dataReceived['paddle']
+                gameInfo['ball'] = dataReceived['ball']
+                gameInfo['score'] = dataReceived['score']
+                gameInfo['sync'] = dataReceived['sync']
+                player2 = dataReceived
 
-        dataToSend = {'p1_paddle': player1['paddle'], #gather full game info to send
-                      'p2_paddle': player2['paddle'],
-                      'ball': player1['ball'],
-                      'score': player1['score'],
-                      'sync': player1['sync']}
+        dataToSend = gameInfo   #gather full game info to send
         
         clientSocket.send(json.dumps(dataToSend.encode())) #send game info to client
 
