@@ -85,10 +85,13 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # where the ball is and the current score.
         # Feel free to change when the score is updated to suit your needs/requirements
         
-        dataToSend = { 'paddle': [playerPaddleObj.moving, playerPaddleObj.speed],
+        #Create dictionary for info to send to server
+        dataToSend = { 'paddle': [playerPaddle.rect.x, playerPaddle.rect.y, playerPaddleObj.moving, playerPaddleObj.speed],
                        'ball': [ball.rect.x, ball.rect.y, ball.yVel, ball.xVel],
                        'score': [lScore, rScore],
                        'sync': sync}
+        
+        #send data to server
         jsonData = json.dumps(dataToSend)
         client.send(jsonData.encode())
         
@@ -162,7 +165,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # =========================================================================================
         # Send your server update here at the end of the game loop to sync your game with your
         # opponent's game
-
+        
         # =========================================================================================
 
 
@@ -189,9 +192,9 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
     resp = client.recv(1024)
     initData = json.loads(resp.decode())
 
-    player_paddle = initData['']
-    screenWidth = initData['']
-    screenHeight = initData['']
+    player_paddle = initData['side']
+    screenWidth = initData['screenWidth']
+    screenHeight = initData['screenHeight']
 
     # If you have messages you'd like to show the user use the errorLabel widget like so
     errorLabel.config(text=f"Some update text. You input: IP: {ip}, Port: {port}")
