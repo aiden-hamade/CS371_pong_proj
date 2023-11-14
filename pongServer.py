@@ -11,13 +11,13 @@ import threading
 import json
 
 #create global objects containing player1 info
-player1 = {'paddle':[int, int, str, int],
+player1 = {'paddle': [int, int, str, int],
            'ball': [int, int, int, int],
            'score': [int, int],
            'sync': int
 }
 #create global objects containing player2 info
-player2 = {'paddle':[int, int, str, int],
+player2 = {'paddle': [int, int, str, int],
            'ball': [int, int, int, int],
            'score': [int, int],
            'sync': int
@@ -83,19 +83,30 @@ def serveClient(clientSocket: int, playerOne: bool):
     while(True):
 
         #gather full game info to send
-        gameInfo = {'p1_paddle': player1[int, int, str, int],
-                    'p2_paddle': player2[int, int, str, int], 
+        gameInfo = {'p1_paddle': [int, int, str, int],
+                    'p2_paddle': [int, int, str, int], 
                     'ball': [int, int, int, int], #unified ball pos/vel
                     'score': [int, int], #p1 score, p2 score
                     'sync': [int] #unified sync
         }
 
         #Receive update from player
-        recv = clientSocket.recv(1024)
-        dataReceived = json.loads(recv.decode())
+        recv = clientSocket.recv(1024).decode()
+        dataReceived = json.loads(recv)
 
         if not recv: #connection is lost
             break
+
+        if (playerOne):
+            player1['paddle'] = dataReceived['paddle']
+            player1['ball'] = dataReceived['ball']
+            player1['score'] = dataReceived['score']
+            player1['sync'] = dataReceived['sync']
+        else:
+            player2['paddle'] = dataReceived['paddle']
+            player2['ball'] = dataReceived['ball']
+            player2['score'] = dataReceived['score']
+            player2['sync'] = dataReceived['sync']
 
         if (playerOne): #dataReceived = most updated player1 info
             if (dataReceived['sync'] > player2['sync']): #if p1 is ahead
@@ -119,6 +130,9 @@ def serveClient(clientSocket: int, playerOne: bool):
         clientSocket.send(json.dumps(dataToSend.encode())) #send game info to client
 
     clientSocket.close()
+
+
+createServer()
 
 
 

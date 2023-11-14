@@ -86,7 +86,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # Feel free to change when the score is updated to suit your needs/requirements
         
         #Create dictionary for info to send to server
-        dataToSend = { 'paddle': [playerPaddle.rect.x, playerPaddle.rect.y, playerPaddleObj.moving, playerPaddleObj.speed],
+        dataToSend = { 'paddle': [playerPaddleObj.rect.x, playerPaddleObj.rect.y, playerPaddleObj.moving, playerPaddleObj.speed],
                        'ball': [ball.rect.x, ball.rect.y, ball.yVel, ball.xVel],
                        'score': [lScore, rScore],
                        'sync': sync}
@@ -96,13 +96,13 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         client.send(jsonData.encode())
 
 
-        recv = client.recv(1024)
-        dataReceived = json.loads(recv.decode())
+        recv = client.recv(1024).decode()
+        dataReceived = json.loads(recv)
 
         if playerPaddle == "left":
             opponentPaddleObj.rect.x, opponentPaddleObj.rect.y, opponentPaddleObj.moving, opponentPaddleObj.speed = dataReceived['p2_paddle']
         else:
-            opponentPaddleObj.rect.x, opponentPaddleObj.rect.y, opponentPaddleObj.moving, opponentPaddleObj.speed = dataReceived['p2_paddle']
+            opponentPaddleObj.rect.x, opponentPaddleObj.rect.y, opponentPaddleObj.moving, opponentPaddleObj.speed = dataReceived['p1_paddle']
 
         lScore, rScore = dataReceived['score']
         ball.rect.x, ball.rect.y, ball.xVel, ball.yVel = dataReceived['ball']
@@ -198,7 +198,7 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
     # Create a socket and connect to the server
     # You don't have to use SOCK_STREAM, use what you think is best
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(ip, int(port))
+    client.connect((ip, int(port)))
 
     # Get the required information from your server (screen width, height & player paddle, "left or "right)
     resp = client.recv(1024)
@@ -214,9 +214,9 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
     errorLabel.update()     
 
     # Close this window and start the game with the info passed to you from the server
-    #app.withdraw()     # Hides the window (we'll kill it later)
-    #playGame(screenWidth, screenHeight, player_paddle, client)  # User will be either left or right paddle
-    #app.quit()         # Kills the window
+    app.withdraw()     # Hides the window (we'll kill it later)
+    playGame(screenWidth, screenHeight, player_paddle, client)  # User will be either left or right paddle
+    app.quit()         # Kills the window
 
 
 # This displays the opening screen, you don't need to edit this (but may if you like)
@@ -255,4 +255,4 @@ if __name__ == "__main__":
     # Uncomment the line below if you want to play the game without a server to see how it should work
     # the startScreen() function should call playGame with the arguments given to it by the server this is
     # here for demo purposes only
-    # playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+    playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))
