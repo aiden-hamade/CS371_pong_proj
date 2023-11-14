@@ -10,6 +10,7 @@ import pygame
 import tkinter as tk
 import sys
 import socket
+import json
 
 from assets.code.helperCode import *
 
@@ -84,6 +85,15 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # where the ball is and the current score.
         # Feel free to change when the score is updated to suit your needs/requirements
         
+        #Create dictionary for info to send to server
+        dataToSend = { 'paddle': [playerPaddle.rect.x, playerPaddle.rect.y, playerPaddleObj.moving, playerPaddleObj.speed],
+                       'ball': [ball.rect.x, ball.rect.y, ball.yVel, ball.xVel],
+                       'score': [lScore, rScore],
+                       'sync': sync}
+        
+        #send data to server
+        jsonData = json.dumps(dataToSend)
+        client.send(jsonData.encode())
         
         # =========================================================================================
 
@@ -145,7 +155,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         pygame.draw.rect(screen, WHITE, topWall)
         pygame.draw.rect(screen, WHITE, bottomWall)
         scoreRect = updateScore(lScore, rScore, screen, WHITE, scoreFont)
-        pygame.display.update([topWall, bottomWall, ball, leftPaddle, rightPaddle, scoreRect, winMessage])
+        pygame.display.update()
         clock.tick(60)
         
         # This number should be synchronized between you and your opponent.  If your number is larger
@@ -155,7 +165,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # =========================================================================================
         # Send your server update here at the end of the game loop to sync your game with your
         # opponent's game
-
+        
         # =========================================================================================
 
 
@@ -176,9 +186,15 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
     # Create a socket and connect to the server
     # You don't have to use SOCK_STREAM, use what you think is best
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect(ip, int(port))
 
     # Get the required information from your server (screen width, height & player paddle, "left or "right)
+    resp = client.recv(1024)
+    initData = json.loads(resp.decode())
 
+    player_paddle = initData['side']
+    screenWidth = initData['screenWidth']
+    screenHeight = initData['screenHeight']
 
     # If you have messages you'd like to show the user use the errorLabel widget like so
     errorLabel.config(text=f"Some update text. You input: IP: {ip}, Port: {port}")
@@ -187,7 +203,7 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
 
     # Close this window and start the game with the info passed to you from the server
     #app.withdraw()     # Hides the window (we'll kill it later)
-    #playGame(screenWidth, screenHeight, ("left"|"right"), client)  # User will be either left or right paddle
+    #playGame(screenWidth, screenHeight, player_paddle, client)  # User will be either left or right paddle
     #app.quit()         # Kills the window
 
 
@@ -227,4 +243,4 @@ if __name__ == "__main__":
     # Uncomment the line below if you want to play the game without a server to see how it should work
     # the startScreen() function should call playGame with the arguments given to it by the server this is
     # here for demo purposes only
-    playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+    # playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))
