@@ -83,8 +83,8 @@ def serveClient(clientSocket: int, playerOne: bool):
     while(True):
 
         #gather full game info to send
-        gameInfo = {'p1_paddle': player1['paddle'],
-                    'p2_paddle': player2['paddle'], 
+        gameInfo = {'p1_paddle': player1[int, int, str, int],
+                    'p2_paddle': player2[int, int, str, int], 
                     'ball': [int, int, int, int], #unified ball pos/vel
                     'score': [int, int], #p1 score, p2 score
                     'sync': [int] #unified sync
@@ -106,7 +106,7 @@ def serveClient(clientSocket: int, playerOne: bool):
                 gameInfo['sync'] = dataReceived['sync']
                 player1 = dataReceived
         else: #dataReceived = most updated player2 info
-            if(dataReceived['sync'] > player1['sync']): #if p2 is ahead
+            if (dataReceived['sync'] > player1['sync']): #if p2 is ahead
                 gameInfo['p1_paddle'] = player1['paddle']
                 gameInfo['p2_paddle'] = dataReceived['paddle']
                 gameInfo['ball'] = dataReceived['ball']
