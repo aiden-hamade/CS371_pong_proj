@@ -10,18 +10,6 @@ import socket
 import threading
 import json
 
-#create global objects containing player1 info
-player1 = {'paddle': [int, int, str, int],
-           'ball': [int, int, int, int],
-           'score': [int, int],
-           'sync': int
-}
-#create global objects containing player2 info
-player2 = {'paddle': [int, int, str, int],
-           'ball': [int, int, int, int],
-           'score': [int, int],
-           'sync': int
-}
 
 def createServer() -> None:
     # Use this file to write your server logic
@@ -45,8 +33,8 @@ def createServer() -> None:
     connections.append(clientSocket2)
 
     playerOne = True
-
     thread1 = threading.Thread(target=serveClient, args=(clientSocket1, playerOne))
+      
     playerOne = False
     thread2 = threading.Thread(target=serveClient, args=(clientSocket2, playerOne))
     
@@ -79,6 +67,8 @@ def serveClient(clientSocket: int, playerOne: bool):
 
     clientSocket.send(j_initData.encode())
 
+    
+
     #listen to clients and send data back and forth
     while(True):
 
@@ -88,6 +78,19 @@ def serveClient(clientSocket: int, playerOne: bool):
                     'ball': [int, int, int, int], #unified ball pos/vel
                     'score': [int, int], #p1 score, p2 score
                     'sync': [int] #unified sync
+        }
+        #create global objects containing player1 info
+        player1 = {'paddle': [0, 0, '', 0],
+                'ball': [0, 0, 0, 0],
+                'score': [0, 0],
+                'sync': 0
+        }
+
+        #create global objects containing player2 info
+        player2 = {'paddle': [0, 0, '', 0],
+                'ball': [0, 0, 0, 0],
+                'score': [0, 0],
+                'sync': 0
         }
 
         #Receive update from player
@@ -127,7 +130,9 @@ def serveClient(clientSocket: int, playerOne: bool):
 
         dataToSend = gameInfo   #gather full game info to send
         
-        clientSocket.send(json.dumps(dataToSend.encode())) #send game info to client
+        j_dataToSend = json.dumps(dataToSend)
+        
+        clientSocket.send(j_dataToSend.encode()) #send game info to client
 
     clientSocket.close()
 

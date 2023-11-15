@@ -91,21 +91,18 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
                        'score': [lScore, rScore],
                        'sync': sync}
         
-        #send data to server
-        jsonData = json.dumps(dataToSend)
-        client.send(jsonData.encode())
 
+        if sync != 0:
+            recv = client.recv(1024).decode()
+            dataReceived = json.loads(recv)
 
-        recv = client.recv(1024).decode()
-        dataReceived = json.loads(recv)
+            if playerPaddle == "left":
+                opponentPaddleObj.rect.x, opponentPaddleObj.rect.y, opponentPaddleObj.moving, opponentPaddleObj.speed = dataReceived['p2_paddle']
+            else:
+                opponentPaddleObj.rect.x, opponentPaddleObj.rect.y, opponentPaddleObj.moving, opponentPaddleObj.speed = dataReceived['p1_paddle']
 
-        if playerPaddle == "left":
-            opponentPaddleObj.rect.x, opponentPaddleObj.rect.y, opponentPaddleObj.moving, opponentPaddleObj.speed = dataReceived['p2_paddle']
-        else:
-            opponentPaddleObj.rect.x, opponentPaddleObj.rect.y, opponentPaddleObj.moving, opponentPaddleObj.speed = dataReceived['p1_paddle']
-
-        lScore, rScore = dataReceived['score']
-        ball.rect.x, ball.rect.y, ball.xVel, ball.yVel = dataReceived['ball']
+            lScore, rScore = dataReceived['score']
+            ball.rect.x, ball.rect.y, ball.xVel, ball.yVel = dataReceived['ball']
         
         # =========================================================================================
 
@@ -177,6 +174,15 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         # =========================================================================================
         # Send your server update here at the end of the game loop to sync your game with your
         # opponent's game
+
+        #Create dictionary for info to send to server
+        dataToSend = { 'paddle': [playerPaddleObj.rect.x, playerPaddleObj.rect.y, playerPaddleObj.moving, playerPaddleObj.speed],
+                       'ball': [ball.rect.x, ball.rect.y, ball.yVel, ball.xVel],
+                       'score': [lScore, rScore],
+                       'sync': sync}
+        
+        j_dataToSend = json.dumps(dataToSend)
+        client.send(j_dataToSend.encode())
         
         # =========================================================================================
 
