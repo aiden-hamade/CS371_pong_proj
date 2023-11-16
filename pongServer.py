@@ -75,20 +75,20 @@ def serveClient(clientSocket: int, playerOne: bool):
         #gather full game info to send
         gameInfo = {'p1_paddle': [int, int, str, int],
                     'p2_paddle': [int, int, str, int], 
-                    'ball': [int, int, int, int], #unified ball pos/vel
+                    'ball': [int, int], #unified ball pos/vel
                     'score': [int, int], #p1 score, p2 score
                     'sync': [int] #unified sync
         }
         #create global objects containing player1 info
         player1 = {'paddle': [0, 0, '', 0],
-                'ball': [0, 0, 0, 0],
+                'ball': [0, 0],
                 'score': [0, 0],
                 'sync': 0
         }
 
         #create global objects containing player2 info
         player2 = {'paddle': [0, 0, '', 0],
-                'ball': [0, 0, 0, 0],
+                'ball': [0, 0],
                 'score': [0, 0],
                 'sync': 0
         }

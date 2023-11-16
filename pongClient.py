@@ -87,7 +87,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         
         #Create dictionary for info to send to server
         dataToSend = { 'paddle': [playerPaddleObj.rect.x, playerPaddleObj.rect.y, playerPaddleObj.moving, playerPaddleObj.speed],
-                       'ball': [ball.rect.x, ball.rect.y, ball.yVel, ball.xVel],
+                       'ball': [ball.rect.x, ball.rect.y],
                        'score': [lScore, rScore],
                        'sync': sync}
         
@@ -102,7 +102,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
                 opponentPaddleObj.rect.x, opponentPaddleObj.rect.y, opponentPaddleObj.moving, opponentPaddleObj.speed = dataReceived['p1_paddle']
 
             lScore, rScore = dataReceived['score']
-            ball.rect.x, ball.rect.y, ball.xVel, ball.yVel = dataReceived['ball']
+            ball.rect.x, ball.rect.y = dataReceived['ball']
         
         # =========================================================================================
 
@@ -177,7 +177,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
 
         #Create dictionary for info to send to server
         dataToSend = { 'paddle': [playerPaddleObj.rect.x, playerPaddleObj.rect.y, playerPaddleObj.moving, playerPaddleObj.speed],
-                       'ball': [ball.rect.x, ball.rect.y, ball.yVel, ball.xVel],
+                       'ball': [ball.rect.x, ball.rect.y],
                        'score': [lScore, rScore],
                        'sync': sync}
         
