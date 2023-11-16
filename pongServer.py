@@ -18,7 +18,7 @@ PADDLE_START_Y = (SCREEN_HEIGHT/2) - (SCREEN_HEIGHT/2)
 
 #create global objects containing player1 info
 player1 = {'paddle': [10, PADDLE_START_Y, '', 0],
-        'ball': [0, 0],
+        'ball': [SCREEN_WIDTH/2, SCREEN_HEIGHT/2],
         'score': [0, 0],
         'sync': 0
 }
@@ -127,7 +127,13 @@ def serveClient(clientSocket: int, playerOne: bool):
                 gameInfo['ball'] = dataReceived['ball']
                 gameInfo['score'] = dataReceived['score']
                 gameInfo['sync'] = dataReceived['sync']
-                player1 = dataReceived
+            else:
+                gameInfo['p1_paddle'] = dataReceived['paddle']
+                gameInfo['p2_paddle'] = player2['paddle']
+                gameInfo['ball'] = player2['ball']
+                gameInfo['score'] = player2['score']
+                gameInfo['sync'] = player2['sync']
+            player1 = dataReceived
         else: #dataReceived = most updated player2 info
             if (dataReceived['sync'] > player1['sync']): #if p2 is ahead
                 gameInfo['p1_paddle'] = player1['paddle']
@@ -135,8 +141,13 @@ def serveClient(clientSocket: int, playerOne: bool):
                 gameInfo['ball'] = dataReceived['ball']
                 gameInfo['score'] = dataReceived['score']
                 gameInfo['sync'] = dataReceived['sync']
-                player2 = dataReceived
-
+            else:
+                gameInfo['p1_paddle'] = player1['paddle']
+                gameInfo['p2_paddle'] = dataReceived['paddle']
+                gameInfo['ball'] = player1['ball']
+                gameInfo['score'] = player1['score']
+                gameInfo['sync'] = player1['sync']
+            player2 = dataReceived
 
         dataToSend = gameInfo   #gather full game info to send
         
