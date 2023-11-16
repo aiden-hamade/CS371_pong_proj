@@ -94,7 +94,7 @@ def serveClient(clientSocket: int, playerOne: bool):
         #gather full game info to send
         gameInfo = {'p1_paddle': [0, 0, '', 0],
                 'p2_paddle': [0, 0, '', 0], 
-                'ball': [0, 0], #unified ball pos/vel
+                'ball': [0, 0], #unified ball pos
                 'score': [0, 0], #p1 score, p2 score
                 'sync': [0] #unified sync
             }

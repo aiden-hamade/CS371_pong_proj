@@ -97,10 +97,8 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
             dataReceived = json.loads(recv)
 
             if playerPaddle == "left":
-                #playerPaddleObj.rect.x, playerPaddleObj.rect.y, playerPaddleObj.moving, playerPaddleObj.speed = dataReceived['p1_paddle']
                 opponentPaddleObj.rect.x, opponentPaddleObj.rect.y, opponentPaddleObj.moving, opponentPaddleObj.speed = dataReceived['p2_paddle']
             else:
-                #playerPaddleObj.rect.x, playerPaddleObj.rect.y, playerPaddleObj.moving, playerPaddleObj.speed = ['p2_paddle']
                 opponentPaddleObj.rect.x, opponentPaddleObj.rect.y, opponentPaddleObj.moving, opponentPaddleObj.speed = dataReceived['p1_paddle']
 
             lScore, rScore = dataReceived['score']
