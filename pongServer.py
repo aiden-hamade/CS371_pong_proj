@@ -8,6 +8,7 @@
 
 import socket
 import threading
+from threading import Lock
 import json
 
 #Constant screen width and height
@@ -88,6 +89,8 @@ def serveClient(clientSocket: int, playerOne: bool):
         global player1
         global player2
 
+        data_lock = Lock()
+
         #gather full game info to send
         gameInfo = {'p1_paddle': [0, 0, '', 0],
                 'p2_paddle': [0, 0, '', 0], 
@@ -102,17 +105,20 @@ def serveClient(clientSocket: int, playerOne: bool):
 
         if not recv: #connection is lost
             break
-        
-        if (playerOne):
-            player1['paddle'] = dataReceived['paddle']
-            player1['ball'] = dataReceived['ball']
-            player1['score'] = dataReceived['score']
-            player1['sync'] = dataReceived['sync']
-        else:
-            player2['paddle'] = dataReceived['paddle']
-            player2['ball'] = dataReceived['ball']
-            player2['score'] = dataReceived['score']
-            player2['sync'] = dataReceived['sync']
+        data_lock.acquire()
+        try:
+            if (playerOne):
+                player1['paddle'] = dataReceived['paddle']
+                player1['ball'] = dataReceived['ball']
+                player1['score'] = dataReceived['score']
+                player1['sync'] = dataReceived['sync']
+            else:
+                player2['paddle'] = dataReceived['paddle']
+                player2['ball'] = dataReceived['ball']
+                player2['score'] = dataReceived['score']
+                player2['sync'] = dataReceived['sync']
+        finally:
+            data_lock.release()
 
         if (playerOne): #dataReceived = most updated player1 info
             if (dataReceived['sync'] > player2['sync']): #if p1 is ahead
