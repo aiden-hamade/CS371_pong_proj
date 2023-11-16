@@ -10,6 +10,24 @@ import socket
 import threading
 import json
 
+#Constant screen width and height
+SCREEN_WIDTH = 480
+SCREEN_HEIGHT = 640
+PADDLE_START_Y = (SCREEN_HEIGHT/2) - (SCREEN_HEIGHT/2)
+
+#create global objects containing player1 info
+player1 = {'paddle': [10, PADDLE_START_Y, '', 0],
+        'ball': [0, 0],
+        'score': [0, 0],
+        'sync': 0
+}
+
+#create global objects containing player2 info
+player2 = {'paddle': [SCREEN_WIDTH-20, PADDLE_START_Y, '', 0],
+        'ball': [SCREEN_WIDTH/2, SCREEN_HEIGHT/2],
+        'score': [0, 0],
+        'sync': 0
+}
 
 def createServer() -> None:
     # Use this file to write your server logic
@@ -47,11 +65,6 @@ def createServer() -> None:
     server.close()
 
 def serveClient(clientSocket: int, playerOne: bool):
-
-    #Constant screen width and height
-    SCREEN_WIDTH = 480
-    SCREEN_HEIGHT = 640
-
     #determine if client is player1 or player2
     if (playerOne):
         side = 'left'
@@ -71,27 +84,17 @@ def serveClient(clientSocket: int, playerOne: bool):
 
     #listen to clients and send data back and forth
     while(True):
+        #create global objects containing player1 info
+        global player1
+        global player2
 
         #gather full game info to send
-        gameInfo = {'p1_paddle': [int, int, str, int],
-                    'p2_paddle': [int, int, str, int], 
-                    'ball': [int, int], #unified ball pos/vel
-                    'score': [int, int], #p1 score, p2 score
-                    'sync': [int] #unified sync
-        }
-        #create global objects containing player1 info
-        player1 = {'paddle': [0, 0, '', 0],
-                'ball': [0, 0],
-                'score': [0, 0],
-                'sync': 0
-        }
-
-        #create global objects containing player2 info
-        player2 = {'paddle': [0, 0, '', 0],
-                'ball': [0, 0],
-                'score': [0, 0],
-                'sync': 0
-        }
+        gameInfo = {'p1_paddle': [0, 0, '', 0],
+                'p2_paddle': [0, 0, '', 0], 
+                'ball': [0, 0], #unified ball pos/vel
+                'score': [0, 0], #p1 score, p2 score
+                'sync': [0] #unified sync
+            }
 
         #Receive update from player
         recv = clientSocket.recv(1024).decode()
@@ -99,7 +102,7 @@ def serveClient(clientSocket: int, playerOne: bool):
 
         if not recv: #connection is lost
             break
-
+        
         if (playerOne):
             player1['paddle'] = dataReceived['paddle']
             player1['ball'] = dataReceived['ball']
@@ -127,6 +130,7 @@ def serveClient(clientSocket: int, playerOne: bool):
                 gameInfo['score'] = dataReceived['score']
                 gameInfo['sync'] = dataReceived['sync']
                 player2 = dataReceived
+
 
         dataToSend = gameInfo   #gather full game info to send
         
