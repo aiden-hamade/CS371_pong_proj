@@ -34,9 +34,9 @@ def createServer() -> None:
     # Use this file to write your server logic
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Creating the server
 
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)    # Working on localhost need this
+    #server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)    # Working on localhost need this
 
-    server.bind(("localhost", 12321))
+    server.bind(("0.0.0.0", 12321))
     server.listen(5)
 
     # You will need to support at least two clients
@@ -158,7 +158,8 @@ def serveClient(clientSocket: int, playerOne: bool):
     clientSocket.close()
 
 
-createServer()
+if __name__ == "__main__":
+    createServer()
 
 
 
