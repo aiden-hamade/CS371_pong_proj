@@ -93,7 +93,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
         
 
         if sync != 0:
-            recv = client.recv(1024).decode()
+            recv = client.recv(512).decode()
             dataReceived = json.loads(recv)
 
             if playerPaddle == "left":
@@ -103,7 +103,7 @@ def playGame(screenWidth:int, screenHeight:int, playerPaddle:str, client:socket.
 
             lScore, rScore = dataReceived['score']
             ball.rect.x, ball.rect.y = dataReceived['ball']
-            #sync = dataReceived['sync']
+            sync = dataReceived['sync']
         
         # =========================================================================================
 
@@ -205,10 +205,11 @@ def joinServer(ip:str, port:str, errorLabel:tk.Label, app:tk.Tk) -> None:
     # Create a socket and connect to the server
     # You don't have to use SOCK_STREAM, use what you think is best
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((ip, int(port)))
+    #client.connect((ip, int(port)))
+    client.connect(('10.113.32.68', 12321))
 
     # Get the required information from your server (screen width, height & player paddle, "left or "right)
-    resp = client.recv(1024)
+    resp = client.recv(512)
     initData = json.loads(resp.decode())
 
     player_paddle = initData['side']
@@ -262,4 +263,4 @@ if __name__ == "__main__":
     # Uncomment the line below if you want to play the game without a server to see how it should work
     # the startScreen() function should call playGame with the arguments given to it by the server this is
     # here for demo purposes only
-    playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+    #playGame(640, 480,"left",socket.socket(socket.AF_INET, socket.SOCK_STREAM))

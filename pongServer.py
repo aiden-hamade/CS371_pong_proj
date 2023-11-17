@@ -34,10 +34,10 @@ def createServer() -> None:
     # Use this file to write your server logic
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Creating the server
 
-    #server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)    # Working on localhost need this
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)    # Working on localhost need this
 
     server.bind(("0.0.0.0", 12321))
-    server.listen(5)
+    server.listen(2)
 
     # You will need to support at least two clients
     # Need to change this to use threads to support two simultaneous clients using function connect_to_client
@@ -46,7 +46,9 @@ def createServer() -> None:
     connections = []
 
     clientSocket1, clientAddress1 = server.accept()
+    print("client 1 connected")
     clientSocket2, clientAddress2 = server.accept()
+    print("client 2 connected")
 
     connections.append(clientSocket1)
     connections.append(clientSocket2)
@@ -100,7 +102,7 @@ def serveClient(clientSocket: int, playerOne: bool):
             }
 
         #Receive update from player
-        recv = clientSocket.recv(1024).decode()
+        recv = clientSocket.recv(512).decode()
         dataReceived = json.loads(recv)
 
         if not recv: #connection is lost
@@ -157,11 +159,8 @@ def serveClient(clientSocket: int, playerOne: bool):
 
     clientSocket.close()
 
-
 if __name__ == "__main__":
     createServer()
-
-
 
         
 
@@ -185,7 +184,7 @@ if __name__ == "__main__":
 
 
 def get_message_from_client(socket, client_data):
-    message = socket.recv(1024).decode()
+    message = socket.recv(512).decode()
     jsonMessage = json.loads(message)
     message_parts = message.split('|')  # (paddle_x, paddle_y)|(ball_x, ball_y)|(score_left, score_right)
     for message in message_parts:
