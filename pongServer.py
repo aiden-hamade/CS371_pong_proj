@@ -30,6 +30,10 @@ player2 = {'paddle': [SCREEN_WIDTH-20, PADDLE_START_Y, '', 0],
         'sync': 0
 }
 
+# Author:       <Brock and Aiden>
+# Purpose:      <Create a server, accept client connections, begin threads for clients>
+# Pre:          <No server created, no connection between clients and server>
+# Post:         <Game is completed>
 def createServer() -> None:
     # Use this file to write your server logic
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Creating the server
@@ -39,19 +43,10 @@ def createServer() -> None:
     server.bind(("0.0.0.0", 12321))
     server.listen(2)
 
-    # You will need to support at least two clients
-    # Need to change this to use threads to support two simultaneous clients using function connect_to_client
-
-    #First person to connect will be player one
-    connections = []
-
     clientSocket1, clientAddress1 = server.accept()
-    print("client 1 connected")
+    print("Client 1 connected")
     clientSocket2, clientAddress2 = server.accept()
-    print("client 2 connected")
-
-    connections.append(clientSocket1)
-    connections.append(clientSocket2)
+    print("Client 2 connected")
 
     playerOne = True
     thread1 = threading.Thread(target=serveClient, args=(clientSocket1, playerOne))
@@ -67,6 +62,10 @@ def createServer() -> None:
 
     server.close()
 
+# Author:       <Brock and Aiden>
+# Purpose:      <Assign each client to a side/Receive info from clients about the game state/Update game state to send based on sync values>
+# Pre:          <Clients created and connected>
+# Post:         <Game is completed and sockets closed>
 def serveClient(clientSocket: int, playerOne: bool):
     #determine if client is player1 or player2
     if (playerOne):
@@ -80,10 +79,7 @@ def serveClient(clientSocket: int, playerOne: bool):
                 'screenHeight': SCREEN_HEIGHT}
     
     j_initData = json.dumps(initData)
-
     clientSocket.send(j_initData.encode())
-
-    
 
     #listen to clients and send data back and forth
     while(True):
@@ -105,16 +101,16 @@ def serveClient(clientSocket: int, playerOne: bool):
         recv = clientSocket.recv(512).decode()
         dataReceived = json.loads(recv)
 
-        if not recv: #connection is lost
+        if not recv:                            # connection is lost
             break
         data_lock.acquire()
         try:
-            if (playerOne):
+            if (playerOne):                     # Populate player1 state with what was received from client
                 player1['paddle'] = dataReceived['paddle']
                 player1['ball'] = dataReceived['ball']
                 player1['score'] = dataReceived['score']
                 player1['sync'] = dataReceived['sync']
-            else:
+            else:                               # Populate player1 state with what was received from client
                 player2['paddle'] = dataReceived['paddle']
                 player2['ball'] = dataReceived['ball']
                 player2['score'] = dataReceived['score']
@@ -122,28 +118,28 @@ def serveClient(clientSocket: int, playerOne: bool):
         finally:
             data_lock.release()
 
-        if (playerOne): #dataReceived = most updated player1 info
-            if (dataReceived['sync'] > player2['sync']): #if p1 is ahead
+        if (playerOne):                         # dataReceived = most updated player1 info
+            if (dataReceived['sync'] > player2['sync']):    # if p1 is ahead, update game state with everything but player 2's paddle
                 gameInfo['p1_paddle'] = dataReceived['paddle']
                 gameInfo['p2_paddle'] = player2['paddle']
                 gameInfo['ball'] = dataReceived['ball']
                 gameInfo['score'] = dataReceived['score']
                 gameInfo['sync'] = dataReceived['sync']
-            else:
+            else:                                           # if p2 is ahead, update game state with everything but player 1's paddle
                 gameInfo['p1_paddle'] = dataReceived['paddle']
                 gameInfo['p2_paddle'] = player2['paddle']
                 gameInfo['ball'] = player2['ball']
                 gameInfo['score'] = player2['score']
                 gameInfo['sync'] = player2['sync']
             player1 = dataReceived
-        else: #dataReceived = most updated player2 info
-            if (dataReceived['sync'] > player1['sync']): #if p2 is ahead
+        else:                                   # dataReceived = most updated player2 info
+            if (dataReceived['sync'] > player1['sync']):    # if p2 is ahead, update game state with everything but player 1's paddle
                 gameInfo['p1_paddle'] = player1['paddle']
                 gameInfo['p2_paddle'] = dataReceived['paddle']
                 gameInfo['ball'] = dataReceived['ball']
                 gameInfo['score'] = dataReceived['score']
                 gameInfo['sync'] = dataReceived['sync']
-            else:
+            else:                                           # if p1 is ahead, update game state with everything but player 2's paddle
                 gameInfo['p1_paddle'] = player1['paddle']
                 gameInfo['p2_paddle'] = dataReceived['paddle']
                 gameInfo['ball'] = player1['ball']
@@ -151,11 +147,11 @@ def serveClient(clientSocket: int, playerOne: bool):
                 gameInfo['sync'] = player1['sync']
             player2 = dataReceived
 
-        dataToSend = gameInfo   #gather full game info to send
+        dataToSend = gameInfo                               # gather full game info to send
         
         j_dataToSend = json.dumps(dataToSend)
         
-        clientSocket.send(j_dataToSend.encode()) #send game info to client
+        clientSocket.send(j_dataToSend.encode())            # send game info to client
 
     clientSocket.close()
 
