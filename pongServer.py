@@ -1,9 +1,9 @@
 # =================================================================================================
 # Contributing Authors:	    <Aiden Hamade, Brock Kessinger>
 # Email Addresses:          <atha241@uky.edu, beke226@uky.edu>
-# Date:                     <The date the file was last edited>
-# Purpose:                  <How this file contributes to the project>
-# Misc:                     <Not Required.  Anything else you might want to include>
+# Date:                     <17 November 2023>
+# Purpose:                  <Lays out server and how the game state is decided from info clients send>
+# Misc:                     <>
 # =================================================================================================
 
 import socket
